@@ -4,10 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Task;
 use Illuminate\Http\Request;
+use Illuminate\Session\Store;
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
+    private $session;
+    public function __construct(Store $session){
+        $this->session = $session;
+    }
+
     // Show New Task Page
     public function showAddTaskPage(){
         return view('add-task');
@@ -19,8 +25,6 @@ class TaskController extends Controller
         $new_task->task_name =  $request->task_name;
         $new_task->project = $request->project;
         $new_task->priority = $request->priority;
-//      $new_task->created_at = Carbon::createFromFormat('d/m/Y', $request->from_date)->format('Y-m-d');
-//      $new_task->updated_at = Carbon::createFromFormat('d/m/Y', $request->to_date)->format('Y-m-d');
         $new_task->save();
         if($new_task){
             return redirect()->back()->withInput()->with('message', 'Task Added');
@@ -30,8 +34,8 @@ class TaskController extends Controller
 
     // Show Edit Task Page
     public function showEditTaskPage($task_id){
-        $task = DB::table('tasks')->where('id', '=',$task_id)->get();
-        return view('edit-task')->with('task',$task[0]);
+        $task = Task::find($task_id);
+        return view('edit-task')->with('task',$task);
     }
 
     // Edit Task
